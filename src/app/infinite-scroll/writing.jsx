@@ -13,47 +13,45 @@ const InfiniteScroll = (props) => {
   const lastElementRef = useRef(null)
   const observerRef = useRef(null)
 
-  const fetchMoreData = useCallback(async () => {
-    setLoading(true)
-    try {
-      await fetchData()
-    } catch(err) {
-      console.log(err);
-    } finally {
-      setLoading(false)
+  const handleUpdate = useCallback(async () => {
+    if (!hasMore) {
+      return
     }
-  }, [fetchData])
-
-  const handleObserve = useCallback((entries) => {
-    if (entries[0].isIntersecting && hasMore && !loading) {
-      fetchMoreData()
-    }
-  }, [fetchMoreData, hasMore, loading])
-
-  useEffect(() => {
-    if (!lastElementRef.current) {
+    if (loading) {
       return
     }
 
-    observerRef.current = new IntersectionObserver(handleObserve, {
+    setLoading(true)
+    await fetchData()
+    setLoading(false)
+  }, [loading, hasMore, fetchData])
+
+  const handleObserver = useCallback((entries) => {
+    const lastElement = entries[0]
+    if (lastElement.isIntersecting) {
+      handleUpdate()
+    }
+  }, [handleUpdate])
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(handleObserver, {
       root: null
     })
 
     observerRef.current.observe(lastElementRef.current)
 
     return () => {
-      if (observerRef.current && lastElementRef.current) {
-        observerRef.current.unobserve(lastElementRef.current)
-      }
+      observerRef.current.disconnect()
     }
-  }, [handleObserve])
+  }, [handleObserver])
+
 
   return (
     <div>
       {children}
       <div ref={lastElementRef}>
-        {loading ? <div>loading</div> : null}
-        {!hasMore ? <div>No More Data</div> : null}
+        {loading ? <div>loading...</div> : null}
+        {hasMore ? null : <div>No More</div>}
       </div>
     </div>
   )

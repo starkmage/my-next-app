@@ -26,8 +26,17 @@ export const MessageContainer = () => {
 
   return ReactDom.createPortal(
     <div>
-      {messages.map((message) => {
-        return <p key={message.content}>{message.content}</p>
+      {messages.map((message, index) => {
+        return <p 
+        style={{
+          position: 'absolute',
+          width: '200px',
+          height: '100px',
+          border: '1px solid #000000',
+          top: '20px',
+          right: '10px'
+        }}
+        key={index}>{message.content}</p>
       })}
     </div>,
     document.body)

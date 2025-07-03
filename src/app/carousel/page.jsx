@@ -1,6 +1,6 @@
 'use client'
 
-import Carousel from "./Carousel"
+import Carousel from "./writing"
 
 const App = () => {
   return <Carousel

@@ -1,12 +1,22 @@
 'use client'
 
-import ClipBoard from "./ClipBoard"
+import { useRef } from "react"
+import ClipBoard from "./writing"
 
 const App = () => {
-  return <ClipBoard
-    text="复制这段话"
-    onSuccess={() => console.log("复制成功！")}
-  />
+  const domRef = useRef(null)
+
+  return (<>
+    <div ref={domRef}>
+      Copy Content of this dom
+      <p>by our component</p>
+    </div>
+    <ClipBoard
+      // text="复制这段话"
+      domRef={domRef}
+      onSuccess={() => console.log("复制成功！")}
+    />
+  </>)
 }
 
-export default App
+  export default App

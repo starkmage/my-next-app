@@ -30,10 +30,10 @@ const Carousel = ({ images = [], interval = 3000 }) => {
 
   // 轮播结束后判断是否跳转回真实图片
   const handleTransitionEnd = () => {
-    if (current === displayImages.length - 1) {
+    if (current >= displayImages.length - 1) {
       setTransitioning(false);
       setCurrent(1); // 跳回第一张
-    } else if (current === 0) {
+    } else if (current <= 0) {
       setTransitioning(false);
       setCurrent(displayImages.length - 2); // 跳回最后一张
     }

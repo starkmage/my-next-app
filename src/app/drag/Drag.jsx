@@ -21,9 +21,11 @@ const Draggable = ({ children }) => {
 
   const onMouseMove = (e) => {
     if (!dragging.current) return;
-    const newX = e.clientX - offset.current.x;
-    const newY = e.clientY - offset.current.y;
-    setPos({ x: newX, y: newY });
+    requestAnimationFrame(() => {
+      const newX = e.clientX - offset.current.x;
+      const newY = e.clientY - offset.current.y;
+      setPos({ x: newX, y: newY });
+    })
   };
 
   const onMouseUp = () => {
@@ -41,6 +43,7 @@ const Draggable = ({ children }) => {
         left: pos.x,
         top: pos.y,
         cursor: 'move',
+        userSelect: 'none',
       }}
     >
       {children}

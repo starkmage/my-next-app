@@ -1,22 +1,14 @@
-'use client'
+import Counter from './Counter';
 
-import React, { useState, useEffect, useLayoutEffect } from "react";
+export default function Page() {
+  // 模拟从数据库/API获取初始值（服务端执行）
+  const initialCount = 10;
 
-function Child({ value }) {
-  console.log("Child 渲染了！");
-  return <div>{value}</div>;
-}
-
-const MemoChild = React.memo(Child)
-
-function Parent() {
-  const [count, setCount] = useState(0);
   return (
     <div>
-      <button onClick={() => setCount(count + 1)}>+1</button>
-      <MemoChild value="固定值" /> {/* 即使 value 不变，也会重新渲染 */}
+      <h1>混合渲染计数器（App Router）</h1>
+      {/* 传递初始值给客户端组件 */}
+      <Counter initialCount={initialCount} />
     </div>
   );
 }
-
-export default Parent

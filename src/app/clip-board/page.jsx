@@ -12,7 +12,7 @@ const App = () => {
       <p>by our component</p>
     </div>
     <ClipBoard
-      // text="复制这段话"
+      text="复制这段话"
       domRef={domRef}
       onSuccess={() => console.log("复制成功！")}
     />

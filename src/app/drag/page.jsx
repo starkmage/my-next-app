@@ -1,6 +1,6 @@
 'use client'
 
-import Draggable from "./Drag"
+import Draggable from "./writing"
 
 const App = () => {
   return <Draggable>

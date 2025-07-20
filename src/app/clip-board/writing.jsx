@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const ClipBoard = (props) => {
   const {
@@ -8,36 +8,39 @@ const ClipBoard = (props) => {
     domRef,
     children,
   } = props
-  const [message, setMessage] = useState(null)  
 
-  const handleCopy = async () => {
+  const [message, setMessage] = useState(null)
+
+  const copy = () => {
     try {
-      if (text) {
-        await navigator.clipboard.writeText(text)
-      } else if (domRef.current) {              
-        await navigator.clipboard.writeText(domRef.current.textContent)
+      if (domRef?.current) {
+        navigator.clipboard.writeText(domRef?.current?.textContent)
+      } else if (text) {
+        navigator.clipboard.writeText(text)
       }
-      setMessage('Copied Successfully')
+      setMessage('copy successfully')
     } catch (err) {
-      setMessage(err)
+      setMessage('Error, please try again later')
     }
 
     setTimeout(() => {
       setMessage(null)
-    }, 1000)
+    }, 2000)
   }
 
-
-  return (<>
-    <div onClick={handleCopy}>
-      {children ?? <button>
-        Copy
-      </button>}
+  return <>
+    <div
+      style={{
+        width: '100px',
+        height: '20px',
+        cursor: 'pointer'
+      }}
+      onClick={copy}
+    >
+      Copy
     </div>
-    {
-      message ? <p>{message}</p> : null
-    }
-  </>)
+    {message ? <p>{message}</p> : null}
+  </>
 }
 
 export default ClipBoard

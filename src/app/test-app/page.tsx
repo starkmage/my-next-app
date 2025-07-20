@@ -1,14 +1,20 @@
-import Counter from './Counter';
+'use client'
 
-export default function Page() {
-  // 模拟从数据库/API获取初始值（服务端执行）
-  const initialCount = 10;
+import { useState } from "react"
+
+function App() {
+  const [value, setValue] = useState("");
+
+  const handleClick = () => {
+    console.log(value); // 点击按钮时，输出的是旧值
+  };
 
   return (
     <div>
-      <h1>混合渲染计数器（App Router）</h1>
-      {/* 传递初始值给客户端组件 */}
-      <Counter initialCount={initialCount} />
+      <input onChange={(e) => setValue(e.target.value)} />
+      <button onClick={handleClick}>Submit</button>
     </div>
   );
 }
+
+export default App

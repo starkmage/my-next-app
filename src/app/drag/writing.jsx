@@ -1,57 +1,60 @@
 'use client'
 
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 
 const Drag = ({ children }) => {
   const [position, setPosition] = useState({
     x: 0,
     y: 0
   })
-
-  const mouseOffsetOfDom = useRef(null)
-  const domRef = useRef(null)
+  const containerRef = useRef(null)
   const dragging = useRef(false)
+  const offset = useRef({ x: 0, y: 0 })
 
-  const onMouseDown = (e) => {
-    dragging.current = true
-    const domInfo = domRef.current.getBoundingClientRect()
-    mouseOffsetOfDom.current = {
-      left: e.clientX - domInfo.left,
-      top: e.clientY - domInfo.top,
-    }
-
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-  }
-
-  const onMouseMove = (e) => {
+  const onMouseMove = useCallback((e) => {
     if (!dragging.current) {
-      return 
+      return
     }
+
     requestAnimationFrame(() => {
       setPosition({
-        x: e.clientX - mouseOffsetOfDom.current.left,
-        y: e.clientY - mouseOffsetOfDom.current.top
+        x: e.clientX - offset.current.x,
+        y: e.clientY - offset.current.y
       })
     })
+  }, [])
+
+  const onMouseDown = (e) => {
+    const rect = containerRef.current.getBoundingClientRect()
+
+    offset.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    }
+
+    dragging.current = true
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
   }
 
-  const onMouseUp = () => {
+
+  const onMouseUp = useCallback(() => {
     dragging.current = false
-    document.removeEventListener('mousemove', onMouseMove)
-    document.removeEventListener('mouseup', onMouseUp)
-  }
+    window.removeEventListener('mousemove', onMouseMove)
+    window.removeEventListener('mouseup', onMouseUp)
+  }, [])
 
   return <div
     style={{
+      cursor: 'move',
       position: 'absolute',
       left: position.x,
       top: position.y,
-      userSelect: 'none',
-      cursor: 'move'
+      userSelect: 'none'
     }}
-    ref={domRef}
     onMouseDown={onMouseDown}
+    ref={containerRef}
   >
     {children}
   </div>

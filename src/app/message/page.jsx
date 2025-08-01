@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from "react"
-import { MessageContainer, Message } from "./Message"
+import { MessageContainer, Message } from "./writing"
 
 const App = () => {
   const showMessage = useCallback(() => {

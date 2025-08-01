@@ -39,7 +39,7 @@ export const MessageContainer = () => {
         key={index}>{message.content}</p>
       })}
     </div>,
-    document.body)
+    document?.body)
 }
 
 export const Message = {

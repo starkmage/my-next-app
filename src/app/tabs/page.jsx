@@ -1,6 +1,6 @@
 'use client'
 
-import Tabs from "./Tabs"
+import Tabs from "./writing"
 
 const App = () => {
   return <Tabs

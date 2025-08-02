@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from "react"
-import Modal from "./Modal"
+import Modal from "./writing"
 
 
 const App = () => {
@@ -14,7 +14,11 @@ const App = () => {
 
   return (
     <>
-      <div onClick={() => setIsOpen(true)}>
+      <div
+        style={{
+          cursor: 'pointer'
+        }}
+        onClick={() => setIsOpen(true)}>
         Open Modal
       </div>
       <Modal isOpen={isOpen} onClose={onClose}>

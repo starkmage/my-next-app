@@ -1,27 +1,27 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 
 const FPSMonitor = () => {
-  const [fps, setFps] = useState(0)
-  const rafRef = useRef(null)
-  const frameRef = useRef(0)
-  const lastTimeRef = useRef(performance.now())
+  const [fps, setFPS] = useState(0)
+  let counterRef = useRef(0)
+  let rafRef = useRef(null)
+  let lastTime = useRef(performance.now())
 
-  const calculateFps = (timeStamp) => {
-    frameRef.current++
-
-    if (timeStamp - lastTimeRef.current >= 1000) {
-      setFps(frameRef.current)
-      frameRef.current = 0
-      lastTimeRef.current = timeStamp
+  const calculateFPS = useCallback((timeStamp) => {
+    if (timeStamp - lastTime.current < 1000) {
+      counterRef.current++
+    } else {
+      setFPS(counterRef.current)
+      counterRef.current = 0
+      lastTime.current = timeStamp
     }
 
-    rafRef.current = requestAnimationFrame(calculateFps)
-  }
+    rafRef.current = requestAnimationFrame(calculateFPS)
+  }, [])
 
   useEffect(() => {
-    rafRef.current = requestAnimationFrame(calculateFps)
+    rafRef.current = requestAnimationFrame(calculateFPS)
 
     return () => {
       if (rafRef.current) {

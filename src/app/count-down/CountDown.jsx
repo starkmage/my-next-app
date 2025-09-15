@@ -2,102 +2,69 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const CountDown = ({ onFinish = () => console.log('finished') }) => {
-  const mRef = useRef(null);
-  const sRef = useRef(null);
-  const [time, setTime] = useState(0); // 秒
-  const [running, setRunning] = useState(false);
+const formatTime = (totalSeconds) => {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
 
-  // 控制倒计时
+/**
+ * Countdown Timer Component
+ * @param {number} initialSeconds - The total number of seconds to count down from.
+ */
+const Countdown= ({ initialSeconds = 60 }) => {
+  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+  const [isActive, setIsActive] = useState(false);
+
+  // 使用 useRef 来存储 interval ID，这样它不会在每次重渲染时丢失
+  const intervalRef = useRef(null);
+
   useEffect(() => {
-    if (!running || time <= 0) return;
-
-    const timer = setInterval(() => {
-      setTime(prev => {
-        const next = prev - 1;
-
-        // 同步输入框显示
-        if (mRef.current && sRef.current) {
-          mRef.current.value = Math.floor(next / 60);
-          sRef.current.value = next % 60;
-        }
-
-        if (next <= 0) {
-          clearInterval(timer);
-          setRunning(false);
-          onFinish();
-        }
-
-        return next;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [running, time]);
-
-  const onStart = () => {
-    if (running) return;
-
-    const minutes = Math.max(0, Number(mRef.current?.value ?? 0));
-    const seconds = Math.max(0, Math.min(59, Number(sRef.current?.value ?? 0)));
-    const total = minutes * 60 + seconds;
-
-    if (total <= 0) {
-      alert("请输入大于 0 的时间（秒数 0-59）");
-      return;
+    if (isActive && secondsLeft > 0) {
+      // 如果计时器激活且时间未到，设置 interval
+      intervalRef.current = setInterval(() => {
+        setSecondsLeft(prevSeconds => prevSeconds - 1);
+      }, 1000);
+    } else if (!isActive || secondsLeft === 0) {
+      // 如果计时器暂停或时间到0，清除 interval
+      clearInterval(intervalRef.current);
+      if (secondsLeft === 0) {
+        setIsActive(false); // 时间到了自动暂停
+      }
     }
 
-    setTime(total);
-    setRunning(true);
+    // 清理函数：组件卸载时清除 interval
+    return () => clearInterval(intervalRef.current);
+  }, [isActive, secondsLeft]); // 依赖 isActive 和 secondsLeft
 
-    // 开始时同步填入时间
-    mRef.current.value = Math.floor(total / 60);
-    sRef.current.value = total % 60;
+  const handleStartPause = () => {
+    setIsActive(!isActive);
   };
 
-  const onPause = () => {
-    setRunning(false);
-  };
-
-  const onReset = () => {
-    setRunning(false);
-    setTime(0);
-    if (mRef.current) mRef.current.value = '';
-    if (sRef.current) sRef.current.value = '';
+  const handleReset = () => {
+    clearInterval(intervalRef.current); // 先清除旧的 interval
+    setIsActive(false);
+    setSecondsLeft(initialSeconds);
   };
 
   return (
-    <div style={{ fontFamily: 'Arial', fontSize: '20px' }}>
-      <p>倒计时</p>
-      <div style={{ marginBottom: 10 }}>
-        <input
-          ref={mRef}
-          type="number"
-          min={0}
-          disabled={running}
-          placeholder="分钟"
-          style={{ width: 100, fontSize: 20 }}
-        />
-        <span style={{ margin: '0 8px' }}>m</span>
-        <input
-          ref={sRef}
-          type="number"
-          min={0}
-          max={59}
-          disabled={running}
-          placeholder="秒钟"
-          style={{ width: 100, fontSize: 20 }}
-        />
-        <span>s</span>
+    <div className="timer-container">
+      <div className="timer-display">
+        {formatTime(secondsLeft)}
       </div>
-
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button onClick={onStart} disabled={running}>Start</button>
-        <button onClick={onPause} disabled={!running}>Pause</button>
-        <button onClick={onReset}>Reset</button>
+      <div className="timer-controls">
+        <button
+          className={`button-start-pause ${isActive ? 'active' : ''}`}
+          onClick={handleStartPause}
+        >
+          {isActive ? '暂停' : '开始'}
+        </button>
+        <button className="button-reset" onClick={handleReset}>
+          重置
+        </button>
       </div>
     </div>
   );
 };
 
-export default CountDown;
+export default Countdown

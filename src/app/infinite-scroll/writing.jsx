@@ -13,44 +13,36 @@ const InfiniteScroll = (props) => {
   const lastRef = useRef(null)
   const observerRef = useRef(null)
 
-  const handleObserve = useCallback((entries) => {
-    if (hasMore) {
-      console.log(entries);
-
-      const [entry] = entries
-      if (entry.isIntersecting) {
-        setLoading(true)
-        fetchData().then(() => {
-          setLoading(false)
-        })
-      }
-    }
-  }, [hasMore, fetchData])
-
-  useEffect(() => {
-    if (!lastRef.current) {
+  const handleObserve = useCallback(async (entries) => {
+    if (!hasMore) {
       return
     }
 
-    observerRef.current = new IntersectionObserver(handleObserve, {
-      root: null,
-    })
+    const [entry] = entries
 
+    if (entry.isIntersecting) {
+      setLoading(true)
+      await fetchData()
+      setLoading(false)
+    }
+  }, [fetchData, hasMore])
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(handleObserve)
     observerRef.current.observe(lastRef.current)
 
     return () => {
-      observerRef.current?.disconnect()
+      observerRef.current.disconnect()
     }
   }, [handleObserve])
 
-  return (
-    <div>
-      {children}
-      <div ref={lastRef}></div>
-      {loading ? <p>loading...</p> : null}
-      {hasMore ? null : <p>no more content</p>}
+  return <div>
+    {children}
+    <div ref={lastRef}>
+      {loading ? <div>loading</div> : null}
+      {hasMore ? null : <div>No More</div>}
     </div>
-  )
+  </div>
 }
 
 export default InfiniteScroll

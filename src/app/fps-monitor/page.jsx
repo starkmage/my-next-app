@@ -4,24 +4,24 @@ import React, { useCallback, useEffect, useRef, useState } from "react"
 
 const FPSMonitor = () => {
   const [fps, setFPS] = useState(0)
-  let counterRef = useRef(0)
-  let rafRef = useRef(null)
-  let lastTime = useRef(performance.now())
+  const timeRef = useRef(performance.now())
+  const countRef = useRef(0)
+  const rafRef = useRef(null)
 
-  const calculateFPS = useCallback((timeStamp) => {
-    if (timeStamp - lastTime.current < 1000) {
-      counterRef.current++
+  const calculate = useCallback((now) => {
+    if (now - timeRef.current < 1000) {
+      countRef.current = countRef.current + 1
     } else {
-      setFPS(counterRef.current)
-      counterRef.current = 0
-      lastTime.current = timeStamp
+      setFPS(countRef.current)
+      countRef.current = 0
+      timeRef.current = now
     }
 
-    rafRef.current = requestAnimationFrame(calculateFPS)
+    rafRef.current = requestAnimationFrame(calculate)
   }, [])
 
   useEffect(() => {
-    rafRef.current = requestAnimationFrame(calculateFPS)
+    rafRef.current = requestAnimationFrame(calculate)
 
     return () => {
       if (rafRef.current) {
@@ -30,7 +30,9 @@ const FPSMonitor = () => {
     }
   }, [])
 
-  return <div>FPS: {fps}</div>
+  return <div>
+    FPS: {fps}
+  </div>
 }
 
 export default FPSMonitor

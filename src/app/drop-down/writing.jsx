@@ -1,41 +1,87 @@
-'use client'
+'use client';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-import { useCallback, useEffect, useRef, useState } from "react"
+const Dropdown = ({ options, placeholder, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedValue, setSelectedValue] = useState(null)
 
-const Dropdown = (props) => {
-  const { children, triggerText } = props
-  const [open, setOpen] = useState(false)
-  const ref = useRef(null)
+  const handleOpen = useCallback(() => {
+    setIsOpen((pre) => !pre)
+  }, [])
 
-  const handleClick = useCallback(() => {
-    setOpen((pre) => !pre)
-  }, [setOpen])
+  const handleSelect = useCallback((option) => {
+    if (option.value === selectedValue?.value) {
+      setIsOpen(false)
+      return
+    }
+
+    setSelectedValue(option)
+    setIsOpen(false)
+    onChange(option)
+  }, [selectedValue])
+
+  const containerRef = useRef(null)
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!ref.current) {
-        return
-      }
-
-      if (!ref.current.contains(e.target)) {
-        setOpen(false);
+    const handleClose = (event) => {
+      if (!containerRef.current.contains(event.target)) {
+        setIsOpen(false)
       }
     }
 
-    window.addEventListener('click', handleClickOutside)
+    document.addEventListener('click', handleClose)
 
     return () => {
-      window.removeEventListener('click', handleClickOutside)
+      document.removeEventListener('click', handleClose)
     }
   }, [])
 
-
   return (
-    <div ref={ref}>
-      <div onClick={handleClick}>{triggerText}</div>
-      {open ? children : null}
+    <div
+      style={{
+        position: 'relative',
+        width: '300px'
+      }}
+      ref={containerRef}
+    >
+      <div
+        onClick={handleOpen}
+        style={{
+          width: '300px',
+          height: '30px',
+          border: '1px solid #000000',
+          cursor: 'pointer'
+        }}>
+        {selectedValue?.label ?? placeholder}
+      </div>
+      {
+        isOpen && <ul
+          style={{
+            position: 'absolute',
+            top: '40px',
+            width: '300px',
+            backgroundColor: 'gray',
+            border: '1px solid #000000',
+          }}
+        >
+          {options.map((option) => {
+            return <li
+              key={option.value}
+              onClick={() => handleSelect(option)}
+              style={{
+                width: '300px',
+                height: '30px',
+                border: '1px solid #000000',
+                cursor: 'pointer',
+              }}
+            >
+              {option.label}
+            </li>
+          })}
+        </ul>
+      }
     </div>
   )
-}
+};
 
-export default Dropdown
+export default Dropdown;

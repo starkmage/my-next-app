@@ -1,9 +1,9 @@
 'use client'
 
-import CountDown from './CountDown'
+import CountDown from './writing'
 
 const App = () => {
-  return <CountDown />
+  return <CountDown initialSeconds={10} />
 }
 
 export default App

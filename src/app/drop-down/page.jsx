@@ -1,14 +1,37 @@
 'use client'
-import Dropdown from "./writing"
+import React, { useState } from 'react';
+import Dropdown from './writing';
 
 const App = () => {
-  return <Dropdown triggerText="操作">
-    <ul>
-      <li>编辑</li>
-      <li>删除</li>
-      <li>详情</li>
-    </ul>
-  </Dropdown>
-}
+  const [selectedFruit, setSelectedFruit] = useState(null);
 
-export default App
+  const options = [
+    { value: 'apple', label: 'Apple' },
+    { value: 'banana', label: 'Banana' },
+    { value: 'cherry', label: 'Cherry' },
+    { value: 'mango', label: 'Mango' },
+  ];
+
+  const handleFruitChange = (option) => {
+    setSelectedFruit(option);
+    console.log('Selected fruit:', option);
+  };
+
+  return (
+    <div style={{ padding: '50px' }}>
+      <h1>Select a Fruit</h1>
+      <Dropdown
+        options={options}
+        placeholder="Choose your favorite fruit..."
+        onChange={handleFruitChange}
+      />
+      {selectedFruit && (
+        <p style={{ marginTop: '20px' }}>
+          Your choice: <strong>{selectedFruit.label}</strong>
+        </p>
+      )}
+    </div>
+  );
+};
+
+export default App;

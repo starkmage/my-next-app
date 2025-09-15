@@ -12,17 +12,18 @@ const VirtualScroll = (props) => {
   } = props
 
   const [top, setTop] = useState(0)
-  const containerRef = useRef(null)
-  let rafRef = useRef(null)
 
-  const startIndex = Math.max(Math.floor(top / itemHeight), 0)
+  const startIndex = Math.floor(top / itemHeight)
   const endIndex = Math.min(startIndex + Math.ceil(containerHeight / itemHeight) + bufferSize, dataSource.length - 1)
 
   const visibleData = useMemo(() => {
     return dataSource.slice(startIndex, endIndex + 1)
-  }, [startIndex, endIndex, dataSource])
+  }, [dataSource, startIndex, endIndex])
 
-  const handleScroll = () => {
+  const containerRef = useRef(null)
+  const rafRef = useRef(null)
+
+  const handleScroll = useCallback(() => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current)
     }
@@ -30,7 +31,7 @@ const VirtualScroll = (props) => {
     rafRef.current = requestAnimationFrame(() => {
       setTop(containerRef.current.scrollTop)
     })
-  }
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -39,7 +40,6 @@ const VirtualScroll = (props) => {
       }
     }
   }, [])
-
 
   return <div
     ref={containerRef}
@@ -51,7 +51,7 @@ const VirtualScroll = (props) => {
   >
     <div
       style={{
-        height: `${dataSource.length * itemHeight}px`,
+        height: `${itemHeight * dataSource.length}px`,
         position: 'relative'
       }}
     >
@@ -61,17 +61,13 @@ const VirtualScroll = (props) => {
           top: `${startIndex * itemHeight}px`
         }}
       >
-        {
-          visibleData.map((item, index) => {
-            return <div
-              style={{
-                height: `${itemHeight}px`
-              }}
-              key={startIndex + index}>
-              {renderItem(item)}
-            </div>
-          })
-        }
+        {visibleData.map((item, index) => {
+          return <div
+            style={{
+              height: `${itemHeight}px`
+            }}
+            key={index + startIndex}>{renderItem(item)}</div>
+        })}
       </div>
     </div>
   </div>

@@ -11,7 +11,7 @@ const InfiniteScroll = (props) => {
 
   const [loading, setLoading] = useState(false)
   const lastRef = useRef(null)
-  const observerRef = useRef(null)
+  const observeRef = useRef(null)
 
   const handleObserve = useCallback(async (entries) => {
     if (!hasMore) {
@@ -28,21 +28,25 @@ const InfiniteScroll = (props) => {
   }, [fetchData, hasMore])
 
   useEffect(() => {
-    observerRef.current = new IntersectionObserver(handleObserve)
-    observerRef.current.observe(lastRef.current)
+    observeRef.current = new IntersectionObserver(handleObserve)
+
+    observeRef.current.observe(lastRef.current)
 
     return () => {
-      observerRef.current.disconnect()
+      observeRef.current.disconnect()
     }
   }, [handleObserve])
 
-  return <div>
-    {children}
-    <div ref={lastRef}>
-      {loading ? <div>loading</div> : null}
-      {hasMore ? null : <div>No More</div>}
+
+  return (
+    <div>
+      {children}
+      <div ref={lastRef}>
+        {loading ? <p>loading...</p> : null}
+        {hasMore ? null : <p>No More</p>}
+      </div>
     </div>
-  </div>
+  )
 }
 
 export default InfiniteScroll

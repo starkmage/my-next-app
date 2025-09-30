@@ -12,18 +12,10 @@ const VirtualScroll = (props) => {
   } = props
 
   const [top, setTop] = useState(0)
-
-  const startIndex = Math.floor(top / itemHeight)
-  const endIndex = Math.min(startIndex + Math.ceil(containerHeight / itemHeight) + bufferSize, dataSource.length - 1)
-
-  const visibleData = useMemo(() => {
-    return dataSource.slice(startIndex, endIndex + 1)
-  }, [dataSource, startIndex, endIndex])
-
   const containerRef = useRef(null)
   const rafRef = useRef(null)
 
-  const handleScroll = useCallback(() => {
+  const handleScroll = () => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current)
     }
@@ -31,46 +23,51 @@ const VirtualScroll = (props) => {
     rafRef.current = requestAnimationFrame(() => {
       setTop(containerRef.current.scrollTop)
     })
-  }, [])
+  }
 
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current)
-      }
-    }
-  }, [])
+  const startIndex = Math.max(0, Math.floor(top / itemHeight) - bufferSize)
+  const endIndex = Math.min(dataSource.length, startIndex + Math.ceil(containerHeight / itemHeight) + bufferSize * 2)
+  const visibleItems = useMemo(() => {
+    return dataSource.slice(startIndex, endIndex)
+  }, [startIndex, endIndex, dataSource])
 
-  return <div
-    ref={containerRef}
-    onScroll={handleScroll}
-    style={{
-      height: `${containerHeight}px`,
-      overflowY: 'auto'
-    }}
-  >
+  return (
     <div
       style={{
-        height: `${itemHeight * dataSource.length}px`,
-        position: 'relative'
+        height: `${containerHeight}px`,
+        overflowY: 'auto'
       }}
+      ref={containerRef}
+      onScroll={handleScroll}
     >
       <div
         style={{
-          position: 'absolute',
-          top: `${startIndex * itemHeight}px`
+          height: `${itemHeight * dataSource.length}px`,
+          position: 'relative'
         }}
       >
-        {visibleData.map((item, index) => {
-          return <div
-            style={{
-              height: `${itemHeight}px`
-            }}
-            key={index + startIndex}>{renderItem(item)}</div>
-        })}
+        <div
+          style={{
+            position: 'absolute',
+            top: `${startIndex * itemHeight}px`,
+          }}
+        >
+          {
+            visibleItems.map((item, index) => {
+              return <div
+                key={index + startIndex}
+                style={{
+                  height: `${itemHeight}px`
+                }}
+              >
+                {renderItem(item)}
+              </div>
+            })
+          }
+        </div>
       </div>
     </div>
-  </div>
+  )
 }
 
 export default VirtualScroll

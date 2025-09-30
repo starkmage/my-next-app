@@ -3,83 +3,71 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const Dropdown = ({ options, placeholder, onChange }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedValue, setSelectedValue] = useState(null)
-
-  const handleOpen = useCallback(() => {
-    setIsOpen((pre) => !pre)
-  }, [])
-
-  const handleSelect = useCallback((option) => {
-    if (option.value === selectedValue?.value) {
-      setIsOpen(false)
-      return
-    }
-
-    setSelectedValue(option)
-    setIsOpen(false)
-    onChange(option)
-  }, [selectedValue])
-
+  const [selectedItem, setSelectedItem] = useState(null)
   const containerRef = useRef(null)
+  const handleToggle = () => {
+    setIsOpen((pre) => !pre)
+  }
+
+  const handleSelect = (item) => {
+    setSelectedItem(item)
+    setIsOpen(false)
+    onChange(item)
+  }
 
   useEffect(() => {
-    const handleClose = (event) => {
-      if (!containerRef.current.contains(event.target)) {
-        setIsOpen(false)
+    const handleClickOutside = (e) => {
+      if (containerRef.current.contains(e.target)) {
+        return
       }
+
+      setIsOpen(false)
     }
 
-    document.addEventListener('click', handleClose)
+    document.addEventListener('click', handleClickOutside)
 
     return () => {
-      document.removeEventListener('click', handleClose)
+      document.removeEventListener('click', handleClickOutside)
     }
   }, [])
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '300px'
-      }}
+    <div style={{
+      position: 'relative',
+      width: '300px'
+    }}
       ref={containerRef}
     >
       <div
-        onClick={handleOpen}
+        onClick={handleToggle}
         style={{
-          width: '300px',
-          height: '30px',
-          border: '1px solid #000000',
-          cursor: 'pointer'
-        }}>
-        {selectedValue?.label ?? placeholder}
-      </div>
-      {
-        isOpen && <ul
-          style={{
-            position: 'absolute',
-            top: '40px',
-            width: '300px',
-            backgroundColor: 'gray',
-            border: '1px solid #000000',
-          }}
-        >
-          {options.map((option) => {
-            return <li
-              key={option.value}
-              onClick={() => handleSelect(option)}
+          width: '100%',
+          cursor: 'pointer',
+          border: '1px solid #000000'
+        }}
+      >{selectedItem?.label ?? placeholder}</div>
+      <div
+        style={{
+          position: 'absolute',
+          backgroundColor: 'skyblue',
+          width: '100%'
+        }}
+      >
+        {isOpen ?
+          options.map((item) => {
+            return <div
               style={{
-                width: '300px',
-                height: '30px',
-                border: '1px solid #000000',
-                cursor: 'pointer',
+                borderBottom: '1px solid #000000',
+                backgroundColor: item.value === selectedItem.value ? 'yellow' : 'transparent'
               }}
+              key={item.value}
+              onClick={() => handleSelect(item)}
             >
-              {option.label}
-            </li>
-          })}
-        </ul>
-      }
+              {item.label}
+            </div>
+          }) : null
+        }
+      </div>
     </div>
   )
 };

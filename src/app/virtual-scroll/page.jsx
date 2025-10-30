@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from "react"
-import VirtualScroll from "./writing"
+import VirtualScroll from "./VirtualScroll"
 
 const App = () => {
   const dataSource = Array(200).fill(0).map((val, index) => index * 10)

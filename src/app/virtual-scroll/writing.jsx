@@ -15,7 +15,14 @@ const VirtualScroll = (props) => {
   const containerRef = useRef(null)
   const rafRef = useRef(null)
 
-  const handleScroll = () => {
+  const startIndex = Math.max(0, Math.floor(top / itemHeight) - bufferSize)
+  const endIndex = Math.min(dataSource.length, startIndex + Math.ceil(containerHeight / itemHeight) + bufferSize * 2)
+
+  const visibleItems = useMemo(() => {
+    return dataSource.slice(startIndex, endIndex)
+  }, [startIndex, endIndex, dataSource])
+
+  const handleScroll = useCallback(() => {
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current)
     }
@@ -23,13 +30,16 @@ const VirtualScroll = (props) => {
     rafRef.current = requestAnimationFrame(() => {
       setTop(containerRef.current.scrollTop)
     })
-  }
+  }, [])
 
-  const startIndex = Math.max(0, Math.floor(top / itemHeight) - bufferSize)
-  const endIndex = Math.min(dataSource.length, startIndex + Math.ceil(containerHeight / itemHeight) + bufferSize * 2)
-  const visibleItems = useMemo(() => {
-    return dataSource.slice(startIndex, endIndex)
-  }, [startIndex, endIndex, dataSource])
+  useEffect(() => {
+
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
+    }
+  })
 
   return (
     <div
@@ -49,21 +59,26 @@ const VirtualScroll = (props) => {
         <div
           style={{
             position: 'absolute',
-            top: `${startIndex * itemHeight}px`,
+            top: `${startIndex * itemHeight}px`
           }}
         >
           {
             visibleItems.map((item, index) => {
-              return <div
-                key={index + startIndex}
-                style={{
-                  height: `${itemHeight}px`
-                }}
-              >
-                {renderItem(item)}
-              </div>
+              return (
+                <div
+                  key={startIndex + index}
+                  style={{
+                    height: `${itemHeight}px`
+                  }}
+                >
+                  {
+                    renderItem(item)
+                  }
+                </div>
+              )
             })
           }
+
         </div>
       </div>
     </div>
